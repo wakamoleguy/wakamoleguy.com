@@ -1,8 +1,10 @@
 {
-  "name": "node-example",
+  "name": "wakamoleguy",
   "version": "0.0.1",
   "dependencies": {
-    "express": "3.1.x"
+    "express": "3.1.x",
+    "jsdom": "0.8.x",
+    "weld": "0.x.x"
   },
   "engines": {
     "node": "0.10.x",
