@@ -6,6 +6,129 @@ var weld = require('weld');
 
 var app = module.exports = express();
 
+function fetch(category, post, callback) {
+  setTimeout(function () {
+    var root = path.join(__dirname, category, post);
+
+    if (reserved(category) || reserved(post)) {
+      callback(null);
+    }
+
+    fs.exists(root, function (exists) {
+      if (exists) {
+        getBaseFile(category, post, function (base) {
+          jsdom.env(base, function (errors, window) {
+            if (errors) throw errors;
+
+            fs.readFile(path.join(root, 'meta.json'), function (err, data) {
+              if (err) throw err;
+
+              data = JSON.parse(data);
+
+              jsdom.env(path.join(root, 'article.html'), function (errors, articleWindow) {
+                if (err) throw err;
+
+                data.body = articleWindow.document.getElementById('body');
+
+                weld.weld(window.document.documentElement, data, {
+                  set: function (parent, element, key, value) {
+                    if (value && value.nodeType) {
+                      if (element.ownerDocument !== value.ownerDocument) {
+                        value = element.ownerDocument.importNode(value, true);
+                      } else if (value.parentNode) {
+                        value.parentNode.removeChild(value);
+                      }
+
+                      while (element.firstChild) {
+                        element.removeChild(element.firstChild);
+                      }
+
+                      element.appendChild(value);
+
+                    } else if (element.nodeName === 'META') {
+                      element.setAttribute('content', value);
+                    } else {
+                      element.textContent = value;
+                    }
+                    return true;
+                  }
+                });
+                callback(window);
+              });
+            });
+          });
+        });
+      } else {
+        callback(null);
+      }
+    });
+  }, 0);
+}
+
+function preview(category, post, callback) {
+  setTimeout(function () {
+    var root = path.join(__dirname, category, post);
+
+    if (reserved(category) || reserved(post)) {
+      callback(null);
+    }
+
+    fs.exists(root, function (exists) {
+      if (exists) {
+        getBaseFile(category, post, function (base) {
+          jsdom.env(base, function (errors, window) {
+            if (errors) throw errors;
+
+            fs.readFile(path.join(root, 'meta.json'), function (err, data) {
+              if (err) throw err;
+
+              data = JSON.parse(data);
+
+              jsdom.env(path.join(root, 'article.html'), function (errors, articleWindow) {
+                if (err) throw err;
+
+                data.body = articleWindow.document.getElementById('preview');
+
+                weld.weld(window.document.documentElement, data, {
+                  set: function (parent, element, key, value) {
+                    if (value && value.nodeType) {
+                      if (element.ownerDocument !== value.ownerDocument) {
+                        value = element.ownerDocument.importNode(value, true);
+                      } else if (value.parentNode) {
+                        value.parentNode.removeChild(value);
+                      }
+
+                      while (element.firstChild) {
+                        element.removeChild(element.firstChild);
+                      }
+
+                      element.appendChild(value);
+
+                    } else if (element.nodeName === 'META') {
+                      element.setAttribute('content', value);
+                    } else {
+                      element.textContent = value;
+                    }
+                    return true;
+                  }
+                });
+                callback(window);
+              });
+            });
+          });
+        });
+      } else {
+        callback(null);
+      }
+    });
+  }, 0);
+}
+
+function list(categories, callback) {
+
+}
+
+
 app.get('/:category', function (req, res, next) {
   var category = req.params.category;
   if (reserved(category)) {
@@ -24,63 +147,13 @@ app.get('/:category', function (req, res, next) {
 });
 
 app.get('/:category/:post', function (req, res, next) {
-  var category = req.params.category,
-      post = req.params.post,
-      root = path.join(__dirname, category, post);
-
-  if (reserved(category) || reserved(post)) {
-    next();
-  }
-
-  fs.exists(root, function (exists) {
-    if (exists) {
-      getBaseFile(category, post, function (base) {
-        jsdom.env(base, function (errors, window) {
-          if (errors) throw errors;
-
-          fs.readFile(path.join(root, 'meta.json'), function (err, data) {
-            if (err) throw err;
-
-            data = JSON.parse(data);
-
-            jsdom.env(path.join(root, 'article.html'), function (errors, articleWindow) {
-              if (err) throw err;
-
-              data.body = articleWindow.document.getElementById('body');
-
-              weld.weld(window.document.documentElement, data, {
-                set: function (parent, element, key, value) {
-                  if (value && value.nodeType) {
-                    if (element.ownerDocument !== value.ownerDocument) {
-                      value = element.ownerDocument.importNode(value, true);
-                    } else if (value.parentNode) {
-                      value.parentNode.removeChild(value);
-                    }
-
-                    while (element.firstChild) {
-                      element.removeChild(element.firstChild);
-                    }
-
-                    element.appendChild(value);
-
-                  } else if (element.nodeName === 'META') {
-                    element.setAttribute('content', value);
-                  } else {
-                    element.textContent = value;
-                  }
-                  return true;
-                }
-              });
-              res.send(window.document.innerHTML);
-            });
-          });
-        });
-      });
+  fetch(req.params.category, req.params.post, function (postWindow) {
+    if (postWindow) {
+      res.send(postWindow.document.innerHTML);
     } else {
       next();
     }
   });
-
 });
 
 function reserved(filename) {
@@ -124,3 +197,7 @@ function getBaseFile(category, post, callback) {
     });
   });
 }
+
+app.fetch = fetch;
+app.preview = preview;
+app.list = list;

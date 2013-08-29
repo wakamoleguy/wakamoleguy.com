@@ -12,6 +12,16 @@ app.use(express.logger());
 
 app.use(blog);
 
+app.use('/preview', function (req, res, next) {
+  blog.preview('blog', 'hello-world', function (postWindow) {
+    if (postWindow) {
+      res.send(postWindow.document.innerHTML);
+    } else {
+      next();
+    }
+  });
+});
+
 app.use(express.static(__dirname + '/static'));
 
 app.all('*', function (req, res) {
