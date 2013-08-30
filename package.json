@@ -4,7 +4,8 @@
   "dependencies": {
     "express": "3.1.x",
     "jsdom": "0.8.x",
-    "weld": "0.x.x"
+    "weld": "0.x.x",
+    "when": "x.x.x"
   },
   "engines": {
     "node": "0.10.x",
