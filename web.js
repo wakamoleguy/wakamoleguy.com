@@ -13,7 +13,7 @@ app.use(express.logger());
 app.use(blog);
 
 app.use('/preview', function (req, res, next) {
-  blog.preview('blog', 'hello-world', function (postWindow) {
+  blog.preview('blog', 'hello-world').then(function (postWindow) {
     if (postWindow) {
       res.send(postWindow.document.innerHTML);
     } else {
