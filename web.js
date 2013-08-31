@@ -2,6 +2,7 @@ var express = require('express');
 //var api = require('./api');
 //var client = require('./client');
 var blog = require('./blog');
+var dynamic = require('./dynamic');
 
 var app = express();
 
@@ -21,6 +22,8 @@ app.use('/preview', function (req, res, next) {
     }
   });
 });
+
+app.use(dynamic);
 
 app.use(express.static(__dirname + '/static'));
 

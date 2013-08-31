@@ -140,7 +140,10 @@ function fetch(category, post, part) {
           return true;
         }
       });
-      return baseWindow;
+
+      metaData.window = baseWindow;
+      metaData.articleWindow = articleWindow;
+      return metaData;
     });
 }
 
@@ -166,30 +169,32 @@ function list(category) {
       var fulfilled = [];
       descriptors.forEach(function(d) {
         if (d.state === 'fulfilled') {
-          fulfilled.push(d.value.document.querySelector('article').innerHTML);
+          fulfilled.push(d.value);
         }
       });
-
-      // Do `then` before returning, since we need access to fulfilled
-      return getListFile(category).
-        then(function (listFile) {
-          return jsdomenv(listFile);
-        }).then(function (baseWindow) {
-          var target = baseWindow.document.getElementsByTagName('main')[0];
-          fulfilled.forEach(function (preview) {
-            var p = baseWindow.document.createElement('article');
-            p.innerHTML = preview;
-            target.appendChild(p);
-          });
-          return baseWindow;
-        });
+      return fulfilled;
     });
 }
 
 app.get('/:category', function (req, res, next) {
   list(req.params.category).then(
-    function (listWindow) {
-      res.send(listWindow.document.innerHTML);
+    function (previews) {
+      // Do `then` before returning, since we need access to fulfilled
+      return getListFile(req.params.category).
+        then(function (listFile) {
+          return jsdomenv(listFile);
+        }).then(function (baseWindow) {
+          var target = baseWindow.document.getElementsByTagName('main')[0];
+          previews.forEach(function (preview) {
+            var p = baseWindow.document.createElement('article');
+            console.log('\n\nappending post\n\n ', preview, ' \n\n end post \n\n');
+            p.innerHTML = preview.articleWindow.document.getElementById('preview').innerHTML;
+            console.log('\n\n',preview.articleWindow, '\n\n');
+            target.appendChild(p);
+          });
+
+          res.send(baseWindow.document.innerHTML);
+        });
     },
     function (error) {
       next();
@@ -198,8 +203,8 @@ app.get('/:category', function (req, res, next) {
 
 app.get('/:category/:post', function (req, res, next) {
   fetch(req.params.category, req.params.post).then(
-    function (postWindow) {
-      res.send(postWindow.document.innerHTML);
+    function (post) {
+      res.send(post.window.document.innerHTML);
     },
     function (error) {
       next();
