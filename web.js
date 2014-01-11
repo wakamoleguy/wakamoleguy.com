@@ -7,7 +7,12 @@ var when = require('when');
 
 app.use(express.logger());
 
-app.use(function (req, res, next) {
+
+// API to come later
+app.use('/api', require('./api'));
+
+// Weld rendering
+/*app.use(function (req, res, next) {
   var path = req.path;
 
   if (path.indexOf('.') !== -1) return next();
@@ -27,20 +32,28 @@ app.use(function (req, res, next) {
       next();
     }
   );
-});
+});*/
 
+
+// Static files
 app.use(express.static(__dirname + '/htdocs'));
 
+// Catch-all 404
 app.all('*', function (req, res) {
   res.writeHeader(404, {"Content-Type": 'text/plain'});
   res.write('Page not found.');
   res.end();
 });
 
+// Run the server
 var port = process.env.PORT || 10080;
 app.listen(port, function () {
   console.log('Listening on port ' + port);
 });
+
+
+
+
 
 /**** Helper function ****/
 
@@ -96,10 +109,16 @@ function fsls(path) {
  */
 function resolvePath(relativePath) {
   var path = Path.join(__dirname, 'htdocs', relativePath);
-  console.log('resolving path: ', path);
   if (path.indexOf('*') !== -1) {
     console.log('resolving path with *: ', path);
-    return fsls(path.replace('*', ''));
+    path = path.replace('*', '');
+    return fsls(path).then(function (relPaths) {
+      var absPaths = [];
+      relPaths.forEach(function (r) {
+        absPaths.push(Path.join(path, r));
+      });
+      return absPaths;
+    });;
   } else {
     console.log('resolving path with no *: ', path);
     return when.resolve([path]);
@@ -152,16 +171,15 @@ function embed(document) {
             console.log('all settled up');
             embeddables.forEach(function (embeddable) {
               if (embeddable.value) {
-                console.log('creating an element');
-                var el = document.createElement(e.tagName);
+                console.log('creating an element: ', e.tagName);
+                var el = document.createElement(e.tagName), i, l, a;
+
                 el.innerHTML = embeddable.value.innerHTML;
-                el.attributes = embeddable.value.attributes;
-
-                // For <meta> tags
-                el.name = embeddable.value.name;
-                el.content = embeddable.value.content;
-
-                e.parentNode.appendChild(el);
+                for (i = 0, l = embeddable.value.attributes.length; i < l; i++) {
+                  a = embeddable.value.attributes[i];
+                  el.setAttribute(a.name, a.value);
+                }
+                e.parentNode.insertBefore(el, e);
               } else {
                 console.log('skipping failed embeddable');
               }
