@@ -1,0 +1,266 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+
+    font-size: 100%;
+    font-family: sans-serif;
+    line-height: 1em;
+}
+
+/** Main editor section */
+#main {
+    position: absolute;
+
+    top: 30%;
+    height: 70%;
+
+    left: 0;
+    width: 100%;
+
+    overflow: hidden;
+
+    box-shadow: 0 5px 10px -5px black inset;
+}
+
+#delete, #save, #help {
+    position: absolute;
+
+    bottom: 0.5em;
+
+    height: 1em;
+    width: 3em;
+    border-radius: 50%;
+
+    background-image: -webkit-radial-gradient(circle, #fff 0em, #eee 1em, #ddd 1.4em, #222 1.6em);
+    background-image: radial-gradient(circle, #fff 0em, #eee 1em, #ddd 1.4em, #222 1.6em);
+    box-shadow: 0.5em 0.5em 1em rgba(0, 0, 0, 0.2);
+
+    padding: 1em 0;
+    text-align: center;
+}
+
+#delete {
+    left: 0.5em;
+}
+
+#save {
+    right: 0.5em;
+}
+
+#help {
+    left: 50%;
+    margin-left: -1.5em;
+}
+
+#help-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 8em;
+    width: 96%;
+    padding: 0 2%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.5em;
+}
+
+#help-overlay a {
+    color: orange;
+}
+
+#editor {
+    position: absolute;
+
+    top: 0;
+    bottom: -3000em;
+    height: auto;
+
+    left: 0;
+    right: -3000em;
+    width: auto;
+
+    background: rgba(202, 193, 127, 0.1);
+
+    padding: 2em;
+
+    overflow: hidden;
+}
+
+#editor .selected {
+    box-shadow: 0 0 0.2em 0.1em crimson;
+}
+
+#editor .editing {
+    border: 1px dotted black;
+}
+
+.expression {
+    position: relative;
+    display: inline-block;
+    padding: 0.25em;
+
+    background-image: -webkit-linear-gradient(top,
+                                              #aaa 0%,
+                                              #ddd 5%,
+                                              #fff 25%,
+                                              #ddd 95%,
+                                              #aaa 100%);
+    background-image: linear-gradient(top,
+                                      #aaa 0%,
+                                      #ddd 5%,
+                                      #fff 25%,
+                                      #ddd 95%,
+                                      #aaa 100%);
+
+    border-radius: 0.2em;
+    box-shadow: 0 0.1em 0.2em black;
+}
+
+.unknown, .variable {
+    height: 1em;
+}
+
+.unknown {
+}
+
+.variable {
+}
+
+.abstraction {
+}
+
+.param {
+    height: 1em;
+    position: relative;
+    margin-left: 0.5em;
+}
+
+.param:before {
+    content: '\\';
+    position: relative;
+    left: -0.25em;
+    top: 0;
+}
+
+.exp {
+    margin-left: 0.5em;
+}
+
+.application {
+}
+
+.fun, .arg {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 0.25em;
+}
+
+.fun:before, .arg:before {
+    position: absolute;
+    content: '(';
+    top: 0;
+    left: -0.4em;
+}
+
+.fun:after, .arg:after {
+    position: absolute;
+    content: ')';
+    top: 0;
+    right: -0.4em;
+}
+
+.arg {
+    margin-top: 0.5em;
+}
+
+/** Library/Recent */
+#side {
+    position: absolute;
+
+    top: 0;
+    height: 30%;
+
+    left: 0;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: #ccc;
+}
+
+ul {
+    list-style: none;
+}
+
+#library, #recent {
+    position: absolute;
+
+    top: 0;
+    min-height: 100%;
+
+    width: 49.9%;
+
+    margin: 0;
+    padding: 0;
+}
+
+#library {
+    left: 0;
+}
+
+#recent {
+    right: 0;
+}
+
+#library li, #recent li {
+    height: 1em;
+    width: 90%;
+    padding: 0.5em 5%;
+
+    box-shadow: inset 5px 0 2px -2px rgba(100, 100, 100, 0.3),
+    inset -5px 0 2px -2px rgba(100, 100, 100, 0.3);
+
+    background-image: -webkit-linear-gradient(top,
+                                              #222 0em,
+                                              #ddd 0.1em,
+                                              #fff 0.5em,
+                                              #ddd 1.9em,
+                                              #aaa 2.0em);
+    background-image: linear-gradient(top,
+                                      #222 0em,
+                                      #ddd 0.1em,
+                                      #fff 0.5em,
+                                      #ddd 1.9em,
+                                      #aaa 2.0em);
+}
+
+/** Input */
+#input-overlay {
+    display: none;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.8);
+}
+#edit-field {
+    display: block;
+    position: relative;
+    top: 40%;
+    left: 0;
+    margin: 0 auto;
+    font-family: inherit;
+    font-size: 1em;
+    line-height: normal;
+}
+
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}

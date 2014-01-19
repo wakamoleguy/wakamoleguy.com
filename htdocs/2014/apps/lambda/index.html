@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html manifest="lambda.appcache">
+<head>
+  <meta charset="utf-8">
+  <title>MultiTouch Lambda Calculator</title>
+  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
+</head>
+<body>
+<div id="main">
+  <div id="editor"></div>
+  <div id="delete">Clear</div>
+  <div id="save">Save</div>
+  <div id="help">Help</div>
+</div>
+<div id="side">
+  <ul id="library">
+  </ul>
+  <ul id="recent">
+    <li id="new-var">New Variable</li>
+  </ul>
+</div>
+<div id="input-overlay">
+  <input type="text" id="edit-field"/>
+</div>
+<div id="help-overlay">
+  <h1>Lambda Calculator Help</h1>
+  <p>Welcome to the <strong>MultiTouch Lambda Calculator</strong>.</p>
+  <p><a href="//en.wikipedia.org/wiki/Lambda_calculus">Learn about Lambda Calculus First</a></p>
+  <p>Draw a '\' shape to make a new lambda (function declaration)</p>
+  <p>Draw a '(' to make a new application (function call)</p>
+  <p>Draw a ')' to close the scope (select parent)</p>
+  <p>Two-finger drag to move</p>
+  <p>Tap library entries to substitute</p>
+</div>
+
+<!-- Templates -->
+<script type="text/template" id="unknown-template">
+  <div class="view">???</div>
+</script>
+
+<script type="text/template" id="variable-template">
+  <div class="view">
+    <div class="name"><%- name %></div>
+    <a class="destroy"></a>
+  </div>
+</script>
+
+<script type="text/template" id="abstraction-template">
+  <div class="view">
+    <div class="param"><%- param %></div>
+    <div class="exp"><div></div></div>
+    <a class="destroy"></a>
+  </div>
+</script>
+
+<script type="text/template" id="application-template">
+  <div class="view">
+    <div class="fun"><div></div></div>
+    <div class="arg"><div></div></div>
+    <a class="destroy"></a>
+  </div>
+</script>
+
+<!-- Scripts -->
+<script src="lib/jquery-1.9.0.min.js"></script>
+<script src="lib/jquery.hammer.js"></script>
+<script src="lib/underscore-min.js"></script>
+<script src="lib/backbone-min.js"></script>
+<script src="lib/backbone.localStorage-min.js"></script>
+<script src="main.js"></script>
+
+<script src="js/hammer-events.js"></script>
+<script src="js/model.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/library.js"></script>
+</body>
+</html>
