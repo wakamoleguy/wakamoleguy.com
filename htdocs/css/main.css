@@ -37,7 +37,7 @@ body {
     font: 1em/1.4em 'Josefin Sans', serif;
     width: 100%;
     margin: 0 auto;
-    background: linear-gradient(to bottom, rgba(23, 163, 14, 0.6) 0, #fffefa 1em);
+    background: linear-gradient(to bottom, rgba(23, 163, 14, 0.6) 0, transparent 1em);
 }
 
 body > header, main, body > footer {

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <title>/Wakamoleguy - A Basic Vanilla Accordion List</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+
+    <header>
+      <a href="/"><h1>/wakamoleguy</h1></a>
+      <nav>
+        <ul>
+          <li><a href="//github.com/wakamoleguy">GitHub</a></li>
+          <li><a href="//twitter.com/wakamoleguy">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h2><a href="/2014/vanilla-accordion/">A Basic Vanilla Accordion List</a></h2>
+        <time datetime="2014-02-06">February 6, 2014</time>
+
+        <p>Here lies my first contribution to the <a href="http://vanillawebdiet.com/">Vanilla Web Diet</a>.  The Diet has gotten quite a following recently, and it even has <a href="http://coding.smashingmagazine.com/2012/11/13/the-vanilla-web-diet/">a book coming out about it</a>.  I first coded up this accordion list several months ago as part of the <a href="https://www.getonsip.com">GetOnSIP</a> project.  Since then, I've tried several times to write up a complete post about its inner workings.  And I've failed.  I've realized that there are really many different things to consider, from the HTML structure to the CSS effects, to the actual behavior of the list.  No one solution is right for everybody.</p>
+
+        <p>Rather than give up, I decided to break it up into two posts.  In this one, I'll show off a very basic, almost primitive accordion list.  In a future post, I will go over many different behavioral, semantic, and stylistic directions to take to customize an accordion list to fit your exact needs.</p>
+
+        <p>In the end, the goal is not to create a one-size-fits-all widget that is perfect for everybody.  That is the kind of goal best suited for frameworks.  The goal is to show what is possible with vanilla JavaScript, because sometimes you don't need to download an extra 80K just to make a section of your site collapsible.</p>
+
+        <p>Anyways, enough of that.  Here we go.</p>
+
+
+        <h3>The HTML</h3>
+
+        <p>A lot of different structures could be turned into an accordion list.  From <a href="http://jqueryui.com/accordion/">jQuery UI's unsemantic &lt;div&gt;s and &lt;span&gt;s</a> to ordered or unordered lists to even &lt;dl&gt; definition lists, just about anything can play the role of a collapsible set of content blocks.  For this basic accordion, I chose to use HTML5 &lt;section&gt; elements, as I felt it made the example the cleanest.</p>
+
+        <div data-height="257" data-theme-id="1062" data-slug-hash="lJhys" data-default-tab="html" class='codepen'>
+          <pre><code>&lt;section class=&quot;accordion&quot;&gt;
+  &lt;section&gt;
+    &lt;h1&gt;Yesterday&lt;/h1&gt;
+    &lt;p&gt;I was sick yesterday, so not much happened.&lt;/p&gt;
+  &lt;/section&gt;
+  &lt;section&gt;
+    &lt;h1&gt;Today&lt;/h1&gt;
+    &lt;p&gt;I have a bunch of things to do today:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Grocery shopping&lt;/li&gt;
+      &lt;li&gt;Stop at the bank&lt;/li&gt;
+      &lt;li&gt;Dinner and a movie&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/section&gt;
+  &lt;section&gt;
+    &lt;h1&gt;Road Blocks&lt;/h1&gt;
+    &lt;p&gt;I&#x27;m sick!&lt;p&gt;
+  &lt;/section&gt;
+&lt;/section&gt;</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/lJhys'>Vanilla Accordion</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+</div>
+
+        <p>There's not much to see:  a section to become an accordion and three sub-sections to hide and show.  I've included a nested list just to prove that the accordion is fairly robust in what content it can show.  The outer &lt;section&gt; gets the class `accordion`, but otherwise there is no extra markup.  Remember that if JavaScript is disabled or fails to load, the user will still see the HTML.  Keep it clean.</p>
+
+        <h3>The JavaScript</h3>
+
+        <p>The most basic accordion has very simple behavior.  In the beginning, all list items are collapsed; only the heading content is visible.  On interacting with the heading (click or touch, for example), the other content in the list item expands out and becomes visible, at the same time collapsing any other items.  Here is the code, followed by an in-depth explanation.</p>
+
+        <div data-height="257" data-theme-id="1062" data-slug-hash="lJhys" data-default-tab="js" class='codepen'><pre><code>(function () {
+  var accordions, i;
+  
+  // Make sure the browser supports what we are about to do.
+  if (!document.querySelectorAll || !document.body.classList) return;
+  
+  // Using a function helps isolate each accordion from the others
+  function makeAccordion(accordion) {
+    var targets, currentTarget, i;
+    
+    targets = accordion.querySelectorAll(&#x27;.accordion &gt; * &gt; h1&#x27;);
+    for(i = 0; i &lt; targets.length; i++) {
+      targets[i].addEventListener(&#x27;click&#x27;, function () {
+        if (currentTarget)
+          currentTarget.classList.remove(&#x27;expanded&#x27;);
+        
+        currentTarget = this.parentNode;
+        currentTarget.classList.add(&#x27;expanded&#x27;);
+      }, false);
+    }
+
+    accordion.classList.add(&#x27;js&#x27;);
+  }
+
+  // Find all the accordions to enable
+  accordions = document.querySelectorAll(&#x27;.accordion&#x27;);
+  
+  // Array functions don&#x27;t apply well to NodeLists
+  for(i = 0; i &lt; accordions.length; i++) {
+    makeAccordion(accordions[i]);
+  }
+  
+})();</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/lJhys'>Vanilla Accordion</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+        <p>Okay, so there's a lot going on in just a few lines of code.  Let's break it down.</p>
+
+        <h3>Short Circuit When Unsupported</h3>
+
+        <p>We depend on the browser having implemented <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element.classList">element.classList</a> (<a href="http://caniuse.com/classlist">Can I use...</a>) and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document.querySelectorAll">Document.querySelectorAll</a> (<a href="http://caniuse.com/queryselector">Can I use...</a>).  If they don't have those, the accordion won't work.  Rather than crash, we detect this and exit cleanly.</p>
+
+        <h3>Find Things Once</h3>
+
+        <p>DOM access is slow. We deal with this by fetching everything we need up front and caching it for later.  This especially shines when clicking to expand a new section.  We could search the sections siblings for any expanded sections, but that is slow and tedious.  Instead, we hold on to the currently expanded section so we have it ready to go.  And when we do click a new section, all we have to do is swap a couple classes and update the variable.  Easy-peasy!</p>
+
+        <p>Some of you may be saying "But hey! Aren't you doing a whole bunch of querySelectorAll calls? Doesn't that traverse the DOM way more than it needs to?" Umm...yeah.  A clever person could find a way to traverse the DOM once, looking only for accordion sections' heading elements an inferring the outer accordion from there.  Perhaps that will make a return visit in another post. For now, I'm satisfied not having to go back to the DOM after initialization.</p>
+
+
+        <h3>Mark Working Accordions</h3>
+
+        <pre><code class="javascript">accordion.classList.add('js');</code></pre>
+
+        <p>This may seem unnecessary, but it's imperative to keeping the accordion accessible.  Remember that for modern browsers which can support the accordion, we would like to start with the headers collapsed.  And yet older browsers should see expanded content.  We accomplish this by adding the `.js` class to the accordion.  This marks it as enabled and provides a CSS hook to style on.</p>
+
+        <h2>The CSS</h2>
+
+        <p>This is where our hard work in JavaScript land will pay off.  By adding relevant classes to a semantic HTML structure, the CSS involved becomes fairly simple.  I left off vendor prefixes. Browsers that don't support the full transition effect will gracefully degrade to switching instantly between visible and invisible.</p>
+
+        <div data-height="257" data-theme-id="1062" data-slug-hash="lJhys" data-default-tab="css" class='codepen'><pre><code>.accordion.js &gt; * {
+  overflow: hidden;
+}
+
+.accordion.js &gt; *:not(.expanded) &gt; *:not(h1) {
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.accordion.js &gt; .expanded &gt; *:not(h1) {
+  max-height: 10em;
+  opacity: 1;
+  visibility: visible;
+}
+
+.accordion.js &gt; * &gt; h1 {
+  cursor: pointer;
+  visibility: visible;
+}
+
+.accordion.js &gt; * &gt; *:not(h1) {
+  transition: max-height 1s,
+    visibility 1s,
+    margin 1s,
+    opacity 1s;
+}</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/lJhys'>Vanilla Accordion</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+        <p>Most of the magic here is hidden in transition the `max-height` of non-heading children of collapsible content.  Ideally, we would like the content to transition from <code>height: 0</code> to <code>height: auto</code>, but animating to the automatic height of an element isn't possible.  Instead, we overshoot with <code>max-height: 10em</code>.  The 10em will vary depending on the content; you must pick a value bigger than the content will every display (so as to avoid trimming), but overshooting by too much will cause odd animation timing.</p>
+
+        <p>We also strip the vertical margins of collapsed content while they are collapsed, which prevents weird spacing issues.  I also like to add an opacity shift, too, to get a fade effect.</p>
+
+        <p>Finally, not that each style is protected by the <code>.accordion.js</code> selector, so they will only apply to enabled accordions.  Users in older browsers will be shown a block of content with only default styling.</p>
+
+        <h2>Conclusion</h2>
+
+        <p>It certainly isn't a silver bullet, but in just 33 lines of (commented, spaced) JavaScript and even less CSS, you can get a nice accordion effect on your page.  Here's the final result:</p>
+
+        <p data-height="400" data-theme-id="1062" data-slug-hash="lJhys" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wakamoleguy/pen/lJhys'>Vanilla Accordion</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+
+        <p>So next time you are creating a web site or web app, don't just run to a bloated UI library. Instead, take a few minutes to assess the situation and decide what you really need.  Bytes do affect performance, and sometimes less really is more.  You, too, can help get the web back on its vanilla diet.</p>
+
+        <p>Tune in next time for some more options on customizing accordions, including different HTML structures, keyboard access, and more!</p>
+
+        <p class="signoff">Cheers!</p>
+      </article>
+      <aside>
+        <h2>On a side note...</h2>
+        <p>I'm a developer.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <h2>Find /wakamoleguy</h2>
+      <a href="//github.com/wakamoleguy">GitHub</a>
+      <a href="//twitter.com/wakamoleguy">Twitter</a>
+    </footer>
+
+    <script async src="https://codepen.io/assets/embed/ei.js"></script>
+  </body>
+</html>
