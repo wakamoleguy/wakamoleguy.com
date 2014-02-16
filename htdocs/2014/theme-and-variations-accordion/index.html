@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <title>/Wakamoleguy - Variations on a Vanilla Accordion List</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+
+    <header>
+      <a href="/"><h1>/wakamoleguy</h1></a>
+      <nav>
+        <ul>
+          <li><a href="//github.com/wakamoleguy">GitHub</a></li>
+          <li><a href="//twitter.com/wakamoleguy">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h2><a href="/2014/theme-and-variations-accordion/">Variations on a Vanilla Accordion List</a></h2>
+        <time datetime="2014-02-16">February 16, 2014</time>
+
+        <p>In the last post, I walked through one way to make a <a href="/2014/vanilla-accordion/">simple accordion list</a> using <a href="http://vanillawebdiet.com/">vanilla JavaScript</a>.  Today, I'll explore several ways an accordion list could be tweaked, sometimes for performance, sometimes for semantics, and sometimes just for style.  No one solution is ever perfect for everybody, so the aim here is to give you ideas for how to best fit the widget to your needs.  And if you don't need an accordion list on your web site, perhaps you can at least walk away having learned a couple questions to ask yourself when adding other fancy widgets to your site.  But enough delay...let's get to it!</p>
+
+        <h3>One-Pass DOM Query</h3>
+
+        <p>In the <a href="/2014/vanilla-accordion/">original article</a>, the JavaScript used <code>document.querySelectorAll</code> to find the accordions, and then another <code>accordion.querySelectorAll</code> to find the click targets within each accordion.  This forces the browser to traverse the DOM of the accordions at least twice (more for nested accordions).  We can avoid this by querying for only the click targets, and then implicitly finding the accordions from there.  Here's the CodePen:</p>
+
+        <div data-height="640" data-theme-id="1062" data-slug-hash="mJhlf" data-default-tab="js" class='codepen'><pre><code>(function () {
+  var accordions, targets, ancestor, i;
+  
+  if(!document.querySelectorAll || !document.body.classList || !Array.prototype.indexOf) return;
+  
+  targets = document.querySelectorAll(&#x27;.accordion &gt; section &gt; h1&#x27;);
+  
+
+  for (i = 0; i &lt; targets.length; i++) {
+    ancestor = targets[i].parentNode.parentNode;
+    if (!ancestor.classList.contains(&#x27;js&#x27;)) {
+      ancestor.accordionTargetBehavior = (function () {
+        var currentTarget;
+        
+        return function () {
+          if (currentTarget)
+            currentTarget.classList.remove(&#x27;expanded&#x27;);
+          currentTarget = this.parentNode;
+          currentTarget.classList.add(&#x27;expanded&#x27;);
+        };
+      })();
+    }
+    
+    targets[i].addEventListener(&#x27;click&#x27;, ancestor.accordionTargetBehavior, false);
+    ancestor.classList.add(&#x27;js&#x27;);
+  }
+})();</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/mJhlf'>Accordion Variation - One DOM Pass</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+        <p>Instead of querying for the accordions, we go straight for the heading elements with <code>document.querySelectorAll('.accordion > section > h1');</code> and use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode"><code>parentNode</code></a> to find the accordion from there.  We also take advantage of the <code>.js</code> class, previously just used to mark accordions as active, to avoid initializing an accordion twice.</p>
+
+        <p>Finally, we cache the click handler function on the accordion element itself, where it can contain a reference to the currently expanded element in a closure.  Each heading in the accordion uses that same function, and therefore has the ability to update the current target.</p>
+
+        <p>I ran this variation through <a href="http://jsperf.com">jsPerf</a> to see if the changes actually made a difference, and by golly they did!  In both Chrome and Firefox, speeds increased by factors of 2 to 4.  You can see the full results and run the tests yourself on the <a href="http://jsperf.com/accordion-selection">Accordion Selection jsPerf page</a>.</p>
+
+        <h3>DL-DD-DT - Using Definition Lists for Accordions</h3>
+
+        <p>When looking for examples of accordions in the wild, I came across <a href="http://www.mozilla.org/en-US/firefox/mobile/faq/">this one on Mozilla's Mobile Firefox FAQ page.</a> The list itself uses an unordered list, but each section contains question and answer pairs represented as a definition list.  Wouldn't it be cool if the questions themselves expanded out to show the answers?</p>
+
+        <p>Unfortunately, as shown by the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl">examples on MDN</a>, definition lists have a man-to-many relationship between terms and definitions.  This, along with their flat structure, makes selecting sections of definition lists challenging.  With a little help from <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_selectors">CSS3 general sibling selectors</a>, we can get past these hurdles.</p>
+
+        <p data-height="257" data-theme-id="1062" data-slug-hash="HAFhs" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wakamoleguy/pen/HAFhs'>Accordion Variation - dd</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+
+        <p>The HTML is a simple definition list.  Note that Firefox and Chrome both have multiple definitions.  The JavaScript is tweaked to select on definition elements rather than sections, but is otherwise the same as the original.</p>
+
+        <p>The CSS is where the magic happens.  There are three main selectors at work here. <code>.accordion.js > dt.expanded ~ dd</code> selects all of the definitions following an expanded term.  For example, if Chrome is expanded, it will find the Chrome definitions <em>and</em> the Internet Explorer definition.  We need to make sure that the IE defintion has CSS of a higher priority applied to it.  For that, <code>.accordion.js > dt.expanded ~ dt:not(.expanded) ~ dd</code> does the trick.  After an expanded term, it finds the next unexpanded term, and then selects all of the definitions from then on.  Finally, we need a way to select the definitions before the expanded term.  <code>.accordion.js > dt:not(.expanded) ~ dd</code> gets the job done. Note that this is lower priority than the expanded selector, and won't interfere with those styles.</p>
+
+        <p>This still doesn't deal with multiple terms that share one definition, although I don't think that would be very difficult.  Using JavaScript to mark all those terms as expanded or cleverly applying the adjacent sibling selector (<code>+</code>) would probably work.</p>
+
+        <h3>Keyboard Navigation</h3>
+
+        <p>Our original accordion was not very friendly to keyboard users.  It would be nice if we could <kbd>Tab</kbd> between accordion headings and expand them by pressing <kbd>Return</kbd>.  Well, we can with just a little extra markup.  By adding 'permalinks' to each heading, we automatically get keyboard access.  Pressing enter will invoke the 'click' handler, as well.  We just need to be sure to prevent the default behavior of the event to avoid page jumping.  Go ahead and click inside the CodePen and use <kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd>, and <kbd>Return</kbd> to test it out.</p>
+
+        <p data-height="350" data-theme-id="1062" data-slug-hash="DmCdw" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wakamoleguy/pen/DmCdw'>Accordion Variation - Keyboard</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+
+        <h3>Multiple Selection</h3>
+
+        <p>Sometimes it's important to be able to expand multiple sections of the accordion at once.  This is an incredibly easy modification...just get rid of tracking the currentTarget:</p>
+
+        <p data-height="430" data-theme-id="1062" data-slug-hash="pCqht" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wakamoleguy/pen/pCqht'>Accordion Variation - Multiple</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+
+        <h3>Accordion?  Nah, let's do tabs.</h3>
+
+        <p>You've spent all this time on an accordion list, and now the designer comes to you saying that accordions are out and tabs are all the rage.  Hours of work starting from scratch?  Nah!  Just a few CSS changes.  That's right.  All of this uses the same JavaScript and HTML as our original accordion.</p>
+
+        <p data-height="238" data-theme-id="1062" data-slug-hash="qAigx" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wakamoleguy/pen/qAigx'>Accordion Variation - Tabs</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+
+        <h3>Conclusion</h3>
+
+        <p>As you can see, it's easy to quickly expand the realm of possibilities, even from a base as simple as the vanilla accordion widget.  What is important to your website or application?  Performance on slower devices?  Keyboard controls for accessibility? Most, if not all, of these variations can be mixed and matched, too.  And hey, if you are inspired to create your own variations or you found this article helpful or even if you hated it, <a href="https://twitter.com/wakamoleguy">tweet me about it</a>.</p>
+
+        <p class="signoff">Cheers!</p>
+
+        <p class="tweetthis">
+          <a href="https://twitter.com/share?url=http://www.wakamoleguy.com/2014/theme-and-variations-accordion&text=Variations on a Vanilla Accordion List&via=wakamoleguy" target="_blank">Share on Twitter</a>
+        </p>
+
+      </article>
+      <aside>
+        <h2>On a side note...</h2>
+        <p>I'm a developer.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <h2>Find /wakamoleguy</h2>
+      <a href="//github.com/wakamoleguy">GitHub</a>
+      <a href="//twitter.com/wakamoleguy">Twitter</a>
+    </footer>
+
+    <script async src="https://codepen.io/assets/embed/ei.js"></script>
+  </body>
+</html>
