@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <title>/Wakamoleguy - home of the wakamoleguy</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+
+    <header>
+      <a href="/"><h1>/wakamoleguy</h1></a>
+      <nav>
+        <ul>
+          <li><a href="//github.com/wakamoleguy">GitHub</a></li>
+          <li><a href="//twitter.com/wakamoleguy">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h2><a href="/2014/here-be-dragons/">Here Be Dragons</a></h2>
+        <time datetime="2014-03-15">March 15, 2014</time>
+
+        <p>For a few years now, the <a href="http://js1k.com/">JS1K</a> contest has been asking folks, "What can you do with just 1,024 bytes of JavaScript?"  As it turns out, people can do some really amazing things.  Just check out <a href="http://js1k.com/2010-xmas/demo/856">the winner from back in 2010</a> (Firefox seems to work best) which animates a decorated Christmas tree, or <a href="http://js1k.com/2013-spring/demo/1555">Strange Crystals II</a>, which won in the spring of 2013.  For the current contest, title 'Here Be Dragons', I decided to try my hand at it.  What can I do with just 1K of JavaScript?  Not much.</p>
+
+        <h3>It's Cooler in my Mind</h3>
+        <p>When I first set out, I had this grand vision of sailing a pirate ship through unknown waters, shooting cannonball at firebreathing dragons.  I knew it would be a challenge to fit all of the features I wanted into 1K, but I opted for overshooting rather than trying to come up with an idea that sounded suitably bite-sized.  Maybe I would surprise myself, or 1024 bytes would turn out to be more than it sounds.</p>
+
+        <p>It didn't.  1K is tiny.  I wasn't familiar with the Canvas API, so I decided to go the DOM route.  First of all, that was a huge mistake.  DOM is not only harder to draw things with than a canvas, but also incredibly expensive to style.  Who has room to type out 'background-color' or '-webkit-transition' when those precious bytes could be going to add clouds or random spawn points?  But at this point, I was committed to making it work as best I could.  There's always next time to try something new.</p>
+
+        <h3>Let's Break It Down</h3>
+        <p> Before I go further, you may want to check out <a href="http://js1k.com/2014-dragons/demo/1788">the demo on JS1K</a> to see what I'm talking about.  It's not pretty.  You should really look at <a href="http://js1k.com/2014-dragons/demos">some of the awesome things other people made</a> as well.  But anyways, if you've decided to stick around, below I'll walk through the entire source code.  Don't worry, it's not too long.</p>
+
+        <p>The first part just removes the canvas using the provided function.  I also included a block comment at the top of the file, to help myself keep track of different variables.  The final portion of this chunk defines a few of those variables.</p>
+        <pre><code>// Remove canvas
+d();
+
+/*
+a
+b - body
+c - ship
+d - dragon
+e
+f
+g
+h
+i - mouse X
+j - mouse Y
+k
+l
+m
+M - Math
+n - setTimeout
+o - setInterval
+p - 'px'
+q
+r
+s - 'style'
+t - 1000
+u - 400
+v - 50
+w
+x
+y
+z
+*/
+
+n = setTimeout;
+o = setInterval;
+t = 1000;
+u = 400;
+v = 50;
+M = Math;
+p = 'px';
+s = 'style';</code></pre>
+
+        <p>As it turns out, CSS was a huge cost.  I factored out all of the styling for the dragon, the pirate ship, and even the background into this one function <code>setStyles</code>.  It uses a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with"><code>with</code></a> statement to save precious bytes on property access.  I was running the code through the <a href="https://developers.google.com/closure/compiler/">Google Closure Compiler</a>, so I wasn't worried about the long function name; it would get changed to a single character later.</p>
+
+        <pre><code>function setStyles(q, l_background, l_height, l_width, l_top, l_left, l_transition, l_visibility) {
+  with(q[s]) {
+    position = 'absolute';
+    background = l_background;
+    height = l_height + p;
+    width = l_width + p;
+    top = (q.T = l_top) + p;
+    left = (q.L = l_left) + p;
+    transition = l_transition;
+    visibility = l_visibility;
+  }
+}</code></pre>
+
+        <p>Next, I create the pirate and the dragon.  They live as <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div">DIV</a> elements, styled appropriately.  Note the expensive (read: long) names of the DOM methods. <code>createElement</code>, <code>appendChild</code>, and <code>innerHTML</code> are almost as painful as the CSS properties above.  The colors are wasting bytes as well, but that was just laziness.</p>
+
+        <pre><code>// Create pirate and dragon
+function createBlock(isDragon) {
+  var q = document.createElement('div');
+  isDragon ?
+    setStyles(q,'green',v,v,v,v) :
+    setStyles(q,'brown',20,v,u,u);
+  isDragon ? (d=q) : (c=q);
+  b.appendChild(q);
+  q.h = q.innerHTML = 5;
+}
+setStyles(b,'skyblue',t,t);
+createBlock(0);
+createBlock(1);
+d.U = d.L;
+c.U = c.L;</code></pre>
+
+        <p>The bullet code was interesting.  I had originally planned to fire the bullet to the mouse, or perhaps at a set distance from the boat.  After I saw how little room I had to work, collision detection and aiming went out the window.  Instead, the bullets animate from the ship to the dragon, or vise versa, using a CSS transition.  When they are done, they are hidden.  This code also includes the health tracking. Starting healths are cached on the objects, and if the target drops to 0, it is reset to its original health, as well as its position.</p>
+
+        <pre><code>// Create or update a bullet (cannonball or fireball)
+function bulletStyle(fromShip, start, u) {
+  u || (u = document.createElement('div'));
+  var t = (fromShip ^ start) ? d : c;
+
+  setStyles(u,fromShip?'#000':'orange',5,5,t.T+25,t.L+25,
+           'top 1s,left 1s,visibility 1s',start || 'hidden');
+  return u;
+}
+
+// Fire a bullet
+function bullet(fromShip,target) {
+  var u = bulletStyle(fromShip,1);
+  b.appendChild(u);
+  n(bulletStyle.bind(0,fromShip,0,u),0);
+
+  n(function () {
+    if (!--target.h) {
+      target.h = 5;
+      target.T = target.U;
+      target.L = target.U;
+    }
+    target.innerHTML = target.h;
+  }, t);
+}
+
+// Fire cannon on click
+this.onclick = bullet.bind(0,1,d);</code></pre>
+
+        <p>This code rotates the ship with the mouse, moving the dragon in the opposite direction.  I hoped this would give the impression of sailing across the open seas, although some imagination is definitely required.  Updating the DOM on every mouse move proved too expensive, so I simply update the mouse position and update the DOM on an interval about 40 times per second. (Remember that <code>o</code> is <code>setInterval</code>.)</p>
+        <pre><code>// Pirate follows mouse
+b.parentNode.onmousemove = function (e) {
+  i = e.x;
+  j = e.y;
+}
+l=i=j=1;
+
+o(function () {
+  var dstyle = d[s];
+  var cstyle = c[s];
+  var a = M.PI/2-M.atan2(i-u,j-u);
+
+  if (!--l) {
+    l = 5;
+    cstyle.webkitTransform = cstyle.transform = 'rotate(' + a + 'rad)';
+  }
+  dstyle.top = (d.T = (d.T - M.sin(a)+t) % t) + p;
+  dstyle.left = (d.L = (d.L - M.cos(a)+t) % t) + p;
+}, 24);
+
+o(bullet.bind(0,0,c),3*t);</code></pre>
+
+        <h3>Room For Improvement</h3>
+
+        <p>Just about every aspect of this could benefit from some love.  From using <a href="https://developer.mozilla.org/en-US/docs/Web/API/window.requestAnimationFrame"><code>requestAnimationFrame</code></a> for better performance or avoiding strings for colors, all the way to massive overhauls such as, you know, <em>not</em> destroying the canvas and using the DOM instead, I could have done a lot better.  There are still a couple weeks before the contest ends, so I may revisit it, though I don't expect I have a chance of winning.</p>
+
+        <p>I did, however, learn an immense amount from this challenge.  Working under the 1K restriction forced me to think about cost differently.  Day to day, I develop WebRTC applications designed for modern browsers on good networks.  The size of the JavaScript file is almost never a factor in our technical decisions.  Finding myself suddenly worrying about the length of CSS properties was an interesting twist.  I would highly recommend giving it a try.  Even if your final product isn't a masterpiece, you'll learn to think about your code in a completely different way.  And hey, you'll probably still do better than I did.</p>
+
+        <p class="signoff">Cheers!</p>
+
+        <p class="tweetthis">
+          <a href="https://twitter.com/share?url=http://www.wakamoleguy.com/2014/here-be-dragons/&text=Wakamoleguy.com Here Be Dragons&via=wakamoleguy" target="_blank">Share on Twitter</a>
+        </p>
+
+      </article>
+      <aside>
+        <h2>On a side note...</h2>
+        <p>I'm a developer.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <h2>Find /wakamoleguy</h2>
+      <a href="//github.com/wakamoleguy">GitHub</a>
+      <a href="//twitter.com/wakamoleguy">Twitter</a>
+    </footer>
+  </body>
+</html>

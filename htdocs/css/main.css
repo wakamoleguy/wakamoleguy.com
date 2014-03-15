@@ -29,7 +29,7 @@ a:active {
 
 html {
     font-size: 100%;
-    background: #fffefa;
+    background: url('http://spyrestudios.com/wp-content/themes/spyrestudios/images/bodybg.jpg');
 }
 
 body {
@@ -112,4 +112,12 @@ footer {
     border-top: 1px dashed rgba(112, 59, 21, 0.6);
     padding: 1em 0 0 0;
     margin: 0 auto;
+}
+
+pre {
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 5%;
+    overflow: auto;
+    background: white;
 }
