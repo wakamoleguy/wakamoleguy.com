@@ -36,6 +36,7 @@ app.use('/api', require('./api'));
 
 
 // Static files
+app.post(express.static(__dirname + '/htdocs'));
 app.use(express.static(__dirname + '/htdocs'));
 
 // Catch-all 404
