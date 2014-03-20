@@ -36,13 +36,13 @@ app.use('/api', require('./api'));
 
 
 // Static files
-app.post('*', function (req,res,next) {
-  req.method = 'GET';
-  next();
-});
 app.use(express.static(__dirname + '/htdocs'));
 
 // Catch-all 404
+app.post('*', function (req,res) {
+  res.redirect('.');
+  res.end();
+});
 app.all('*', function (req, res) {
   res.writeHeader(404, {"Content-Type": 'text/plain'});
   res.write('Page not found.');
