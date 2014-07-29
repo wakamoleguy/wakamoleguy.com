@@ -1,3 +1,9 @@
+/**
+ *
+ * FONTS
+ *
+ **/
+
 @font-face {
   font-family: 'Josefin Sans';
   font-style: normal;
@@ -5,7 +11,63 @@
   src: local('Josefin Sans'), local('JosefinSans'), url(http://themes.googleusercontent.com/static/fonts/josefinsans/v3/xgzbb53t8j-Mo-vYa23n5qRDOzjiPcYnFooOUGCOsRk.woff) format('woff');
 }
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Regular'), local('Roboto-Regular'), url(http://themes.googleusercontent.com/static/fonts/roboto/v11/CrYjSnGjrRCn0pd9VQsnFOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Roboto Thin'), local('Roboto-Thin'), url(http://themes.googleusercontent.com/static/fonts/roboto/v11/vzIUHo9z-oJ4WgkpPOtg13YhjbSpvc47ee6xR_80Hnw.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Roboto Italic'), local('Roboto-Italic'), url(http://themes.googleusercontent.com/static/fonts/roboto/v11/1pO9eUAp8pSF8VnRTP3xnnYhjbSpvc47ee6xR_80Hnw.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Roboto Slab Thin'), local('RobotoSlab-Thin'), url(http://fonts.gstatic.com/s/robotoslab/v4/MEz38VLIFL-t46JUtkIEgNKT0E3VAiFQm6Fsw40EoXw.woff2) format('woff2'), url(http://fonts.gstatic.com/s/robotoslab/v4/MEz38VLIFL-t46JUtkIEgKwsIWd7evfOerjO4J_CQWU.woff) format('woff');
+}
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Roboto Slab Light'), local('RobotoSlab-Light'), url(http://fonts.gstatic.com/s/robotoslab/v4/dazS1PrQQuCxC3iOAJFEJdTIkQYohD4BpHvJ3NvbHoA.woff2) format('woff2'), url(http://fonts.gstatic.com/s/robotoslab/v4/dazS1PrQQuCxC3iOAJFEJfR_54zmj3SbGZQh3vCOwvY.woff) format('woff');
+}
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(http://fonts.gstatic.com/s/robotoslab/v4/y7lebkjgREBJK96VQi37Zogp9Q8gbYrhqGlRav_IXfk.woff2) format('woff2'), url(http://fonts.gstatic.com/s/robotoslab/v4/y7lebkjgREBJK96VQi37ZrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
+}
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Slab Bold'), local('RobotoSlab-Bold'), url(http://fonts.gstatic.com/s/robotoslab/v4/dazS1PrQQuCxC3iOAJFEJf79_ZuUxCigM2DespTnFaw.woff2) format('woff2'), url(http://fonts.gstatic.com/s/robotoslab/v4/dazS1PrQQuCxC3iOAJFEJRbnBKKEOwRKgsHDreGcocg.woff) format('woff');
+}
+
+/**
+ *
+ * Colors
+ *
+ **/
 .c1 {
+    color: #26455e; /* blue = rgb(38, 69, 94) */
+    color: #bbd4e1; /* light-blue = rgb(187, 212, 225) */
+    color: #94b0be; /* grey-blue = rgb(148, 176, 190) */
+    color: #424648; /* sipjs grey = rgb(66, 70, 72); */
+
     color: #17a30e; /* green = rgb(23, 163, 14)*/
     color: #3521b0; /* blue = rgb(53, 33, 176)*/
     color: #145710; /* dark green = rgb(20, 87, 16) */
@@ -13,53 +75,50 @@
     color: #f06909; /* orange */
 }
 
+/**
+ *
+ * Components
+ *
+ **/
+
+/* Links */
 a {
-    color: #17a30e;
+    color: #94b0be; /* grey-blue = rgb(148, 176, 190) */
     text-decoration: none;
+    border-bottom: 1px dashed #94b0be; /* grey-blue = rgb(148, 176, 190) */
 }
 
 a:hover {
-    text-decoration: underline;
+    border-top: 1px dashed #94b0be; /* grey-blue = rgb(148, 176, 190) */
+    border-bottom: 1px dashed #94b0be; /* grey-blue = rgb(148, 176, 190) */
 }
 
 a:active {
-    text-decoration: underline;
-    color: #145710;
-}
-
-html {
-    font-size: 100%;
-    background: url('http://spyrestudios.com/wp-content/themes/spyrestudios/images/bodybg.jpg');
-}
-
-body {
-    color: #222;
-    font: 1em/1.4em 'Josefin Sans', serif;
-    width: 100%;
-    margin: 0 auto;
-    background: linear-gradient(to bottom, rgba(23, 163, 14, 0.6) 0, transparent 1.5em);
-}
-
-body > header, main, body > footer {
-    display: block;
-    max-width: 960px;
-    width: 90%;
-    margin: 0 auto;
-}
-
-body > header {
-    position: relative;
-    top: 0;
-    left: 0;
-    padding: 2em 0 1em 0;
+    color: #94b0be; /* grey-blue = rgb(148, 176, 190) */
+    border-top: 1px dotted #94b0be; /* grey-blue = rgb(148, 176, 190) */
+    border-bottom: 1px dotted #94b0be; /* grey-blue = rgb(148, 176, 190) */
 }
 
 h1 {
     display: inline-block;
-    margin: 0.5em 0;
+    margin: 0.5em auto;
 
-    color: #3521b0;
+    color: #bbd4e1; /* light-blue = rgb(187, 212, 225) */
     font-size: 2em;
+    line-height: 1.6em;
+}
+
+h1, h2, h3 {
+    font-family: 'Roboto Slab';
+    font-weight: 100;
+}
+
+h2 {
+    color: #94b0be; /* grey-blue = rgb(148, 176, 190) */
+    font-weight: 400;
+}
+
+h3 {
 }
 
 ul, li {
@@ -80,38 +139,16 @@ nav li {
     list-style: none;
 }
 
-main {
-    position: relative;
-    top: 0;
-    left: 0;
-    padding: 0 0 1em 0;
+nav a, nav a:hover, nav a:active {
+    color: #bbd4e1; /* light-blue = rgb(187, 212, 225) */
+    border-color: #bbd4e1;
 }
 
-main > article, main > section {
-    width: 66%;
-}
 
 #feed, #feed li {
     margin: 0;
     padding: 0;
     list-style: none;
-}
-
-aside {
-    position: absolute;
-    width: 29%;
-    padding: 0 2%;
-    top: 1em;
-    right: 0;
-    margin: 1em 0;
-
-    border-left: 1px dashed rgba(112, 59, 21, 0.6);
-}
-
-footer {
-    border-top: 1px dashed rgba(112, 59, 21, 0.6);
-    padding: 1em 0 0 0;
-    margin: 0 auto;
 }
 
 pre {
@@ -120,4 +157,116 @@ pre {
     padding: 5%;
     overflow: auto;
     background: white;
+}
+
+/**
+ *
+ * Structure
+ *
+ **/
+
+html {
+    font-size: 100%;
+    background: #000010;
+}
+
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    color: #222;
+    font: 1em/1.6em 'Roboto', sans-serif;
+    font-weight: 100;
+}
+
+/* Header, main, footer */
+body > header, main, body > footer {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+body > header, body > footer {
+    display: block;
+    max-width: 60em;
+    width: 93.75%;
+    margin: 0 auto;
+}
+
+/* Header */
+body > header {
+    padding: 2em 0 1em 0;
+}
+
+/* Footer */
+body > footer {
+    padding: 1em 0;
+}
+
+/* Main */
+main {
+    display: block;
+    width: 100%;
+
+    padding: 1em 0 1em 0;
+    background: white;
+}
+
+main > * {
+    max-width: 60em;
+    width: 93.75%;
+    margin: 0 auto;
+}
+
+/* Content pieces shouldn't take up the whole space */
+main > article > *, main > section > * {
+    max-width: 75%;
+}
+
+main > aside {
+    position: absolute;
+    top: 1em;
+    right: 0;
+    /* Override default sizing */
+    width: auto;
+    margin: 0;
+    margin-right: 3.125%;
+}
+
+@media (min-width: 64em) {
+    main > aside {
+        right: 50%;
+        margin-right: -30em;
+    }
+}
+
+@media (max-width: 20em) {
+    main > aside {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 0;
+    }
+
+    main > article > *, main > section > * {
+        max-width: 100%;
+    }
+}
+
+body > footer > a {
+    margin: 0 1em 0 0;
+}
+
+/**
+ *
+ * Custom (unlikely to have side effects)
+ *
+ **/
+
+body > header > a[href="/"],
+body > header > a[href="/"]:hover,
+body > header > a[href="/"]:active {
+    color: #bbd4e1; /* light-blue = rgb(187, 212, 225) */
+    border: none;
 }
