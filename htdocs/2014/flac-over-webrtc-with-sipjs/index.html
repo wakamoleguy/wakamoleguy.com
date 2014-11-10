@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="Over a year since the arrival of my Raspberry Pi, I finally breathe life into it as a new adventure begins.">
+    <meta name="viewport" content="width=device-width">
+    <title>/Wakamoleguy - home of the wakamoleguy</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+
+    <header>
+      <a href="/"><h1>/wakamoleguy</h1></a>
+      <nav>
+        <ul>
+          <li><a href="//github.com/wakamoleguy">GitHub</a></li>
+          <li><a href="//twitter.com/wakamoleguy">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h2><a href="/2014/flac-over-webrtc-with-sipjs">Playing a FLAC file over WebRTC with SIP.js and Flac.js</a></h2>
+        <time datetime="2014-11-09">Nov 9, 2014</time>
+
+        <p>After <a href="/2014/raspberry-pi-adventure-begins/">getting my Raspberry Pi up and running</a> last week, I was really pumped to continue on, find a project, and put it to good use.  I spent this weekend exploring the world of <strong><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API">Web Audio</a></strong>. Even working with browsers and <strong>WebRTC</strong> all day at work, I am constantly surprised by the ease with which HTML5 lets you wield a lot of power to do cool things.  Here is how to do one thing I learned this weekend:  Playing a FLAC file from one computer to another using WebRTC.</p>
+
+        <h3>What I used:</h3>
+
+        <ul>
+          <li><strong><a href="http://sipjs.com">SIP.js</a></strong> and an <strong><a href="http://www.onsip.com/webrtc-sip-network">OnSIP Developer account</a></strong> - This would work using the vanilla WebRTC API as well. I used OnSIP since it's what I'm familiar with (I'm not trying to do a sales pitch here).</li>
+          <li><strong><a href="https://github.com/audiocogs/flac.js">Flac.js</a></strong> and <strong><a href="https://github.com/audiocogs/aurora.js">Aurora.js</a></strong> - Put out by <a href="http://audiocogs.org">Audiocogs</a>, these libraries let you load and play FLAC files in your browser using the Web Audio API.  They have several other codecs available as well.</li>
+          <li>A FLAC file to play. I used Coldplay's <em>Sky Full of Stars</em>.  The actual song chosen <em>probably</em> doesn't matter.</li>
+          <li>Chrome, for the browser transmitting the FLAC file. Firefox gets finicky about sending certain MediaStreams over WebRTC.</li>
+        </ul>
+
+        <h3>Putting it together</h3>
+
+        <p>Wiring these pieces up really could not have been much easier.  Flac.js and Aurora.js together provide a simple way to preload and decode the FLAC file, and they also spit out events implementing the same interface as SIP.js!  Since Aurora.js plays the file using a source context, all we have to do is grab that and connect it to a new <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamAudioDestinationNode">MediaStream destination</a>.  From there, SIP.js can take the stream and offer it in place of your regularly captured microphone audio.</p>
+
+        <p>In the end, the explanation is probably longer than the code itself.</p>
+
+        <p><em>CodePen used for styling only; this demo code needs slight modification to run.</em></p>
+
+
+        <div data-height="155" data-theme-id="1062" data-slug-hash="bNbLOx" data-default-tab="html" data-user="wakamoleguy" class='codepen'>
+          <pre><code>&lt;script src=&quot;aurora.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;flac.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;sip-0.6.3.js&quot;&gt;&lt;/script&gt;</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/bNbLOx/'>bNbLOx</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+
+        <div data-height="535" data-theme-id="1062" data-slug-hash="bNbLOx" data-default-tab="js" data-user="wakamoleguy" class='codepen'>
+          <pre><code>// Load the FLAC file
+window.player = AV.Player.fromURL(&#39;http://localhost/path/to/file.flac&#39;);
+player.preload();
+
+player.on(&#39;ready&#39;, function () {
+  console.log(&#39;ready&#39;);
+
+  // Aurora doesn&#39;t create the audio context until you start playing it.
+  player.play();
+  player.pause();
+
+  // Wire the WebAudio source and destination together.
+  var dest = player.device.device.context.createMediaStreamDestination();
+  player.device.device.node.connect(dest);
+
+  // Send the stream to a destination using SIP and WebRTC.
+  new SIP.UA().
+    invite(&#39;listener@example.onsip.com&#39;, { media: { stream: dest.stream }}).
+    on(&#39;accepted&#39;, function () {
+      player.play();
+    });
+});</code></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/bNbLOx/'>bNbLOx</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+        <p>When you load the page, it will fetch the specified FLAC file and start preloading it, before calling the specified SIP address.  I pointed it to my OnSIP address and was able to receive the call in <a href="https://insta.onsip.com/phone">InstaPhone</a>.  The call showed up like any normal call, and when I answered it, the music began playing!</p>
+
+        <h3>What's next?</h3>
+
+        <p>Playing a FLAC file over WebRTC using <em>under 20 lines of JavaScript!</em>  I know I have plans of building some cool things with this.  Streaming music from my Pi to my phone?  Sure!  Preloading my playlist so it can stream even while I am on the subway?  You bet!  What about you?  If you have some crazy ideas, <a href="https://twitter.com/share?url=http://www.wakamoleguy.com/2014/flac-over-webrtc-with-sipjs/&text=Playing a FLAC file over WebRTC with SIP.js and Flac.js&via=wakamoleguy" target="_blank">head over to Twitter</a> and share them!</p>
+
+        <p>Just remember, if you are playing music over WebRTC, mind the licenses. I plan on sending music only to myself, and only music that I have purchased. I would advise a similar level of copyright caution to any other experimenters.</p>
+
+        <p class="signoff">Cheers!</p>
+
+        <p class="tweetthis">
+          <a href="https://twitter.com/share?url=http://www.wakamoleguy.com/2014/flac-over-webrtc-with-sipjs/&text=Playing a FLAC file over WebRTC with SIP.js and Flac.js&via=wakamoleguy" target="_blank">Share on Twitter</a>
+        </p>
+
+      </article>
+      <aside>
+        <h2>On a side note...</h2>
+        <p>I'm a developer.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <h2>Find /wakamoleguy</h2>
+      <a href="//github.com/wakamoleguy">GitHub</a>
+      <a href="//twitter.com/wakamoleguy">Twitter</a>
+    </footer>
+
+
+    <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+  </body>
+</html>
