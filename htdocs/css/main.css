@@ -146,7 +146,7 @@ body {
     padding: 0;
 
     color: #222;
-    font: 1em/1.6em 'Roboto', sans-serif;
+    font: 1em/2em 'Roboto', sans-serif;
     font-weight: 400;
 }
 
@@ -184,6 +184,7 @@ main > * {
     max-width: 60em;
     width: 93.75%;
     margin: 0 auto;
+    letter-spacing: -0.03em;
 }
 
 /* Content pieces shouldn't take up the whole space */
@@ -199,6 +200,14 @@ main > aside {
     /* Override default sizing: */
     width: 23%;
     margin: 0;
+
+    font-size: 1em;
+}
+
+main > aside > p {
+    font-size: 0.8em;
+    line-height: 1.2em;
+    padding-right: 1em;
 }
 
 @media (min-width: 64em) {

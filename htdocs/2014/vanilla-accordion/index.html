@@ -69,20 +69,20 @@
 
         <div data-height="257" data-theme-id="1062" data-slug-hash="lJhys" data-default-tab="js" class='codepen'><pre><code>(function () {
   var accordions, i;
-  
+
   // Make sure the browser supports what we are about to do.
   if (!document.querySelectorAll || !document.body.classList) return;
-  
+
   // Using a function helps isolate each accordion from the others
   function makeAccordion(accordion) {
     var targets, currentTarget, i;
-    
+
     targets = accordion.querySelectorAll(&#x27;.accordion &gt; * &gt; h1&#x27;);
     for(i = 0; i &lt; targets.length; i++) {
       targets[i].addEventListener(&#x27;click&#x27;, function () {
         if (currentTarget)
           currentTarget.classList.remove(&#x27;expanded&#x27;);
-        
+
         currentTarget = this.parentNode;
         currentTarget.classList.add(&#x27;expanded&#x27;);
       }, false);
@@ -93,12 +93,12 @@
 
   // Find all the accordions to enable
   accordions = document.querySelectorAll(&#x27;.accordion&#x27;);
-  
+
   // Array functions don&#x27;t apply well to NodeLists
   for(i = 0; i &lt; accordions.length; i++) {
     makeAccordion(accordions[i]);
   }
-  
+
 })();</code></pre>
           <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/lJhys'>Vanilla Accordion</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
         </div>
@@ -183,7 +183,13 @@
       </article>
       <aside>
         <h2>On a side note...</h2>
-        <p>I'm a developer.</p>
+        <p>Hi.  My name is Will&nbsp;Mitchell.</p>
+
+        <p>I'm a developer, gamer, and overall nerd.  Sometimes I write about things.</p>
+
+        <p>I work at a great company called <a href="http://www.onsip.com">OnSIP</a> as <strong>Lead Developer</strong>.</p>
+
+        <p>Cheers! -Will</p>
       </aside>
     </main>
 

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <title>/Wakamoleguy - home of the wakamoleguy</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+
+    <header>
+      <a href="/"><h1>/wakamoleguy</h1></a>
+      <nav>
+        <ul>
+          <li><a href="//github.com/wakamoleguy">GitHub</a></li>
+          <li><a href="//twitter.com/wakamoleguy">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h2><a href="/2014/revealing-module-pattern-and-this/">Revealing Module Pattern and `This`</a></h2>
+        <time datetime="2015-04-30">April 30, 2015</time>
+
+        <p>I read an interesting post the other day by Ben Nadel (<a href="https://twitter.com/BenNadel">@BenNadel</a>). It used a relatively simple cache module to illustrate <a href="http://www.bennadel.com/blog/2798-using-method-chaining-with-the-revealing-module-pattern-in-javascript.htm"><code>this</code> behavior in the revealing module pattern</a>. It's a good read, and it got me thinking further about public and private methods and <code>this</code>.</p>
+
+        <p>In summary, the post showed the interesting way that method works using the revealing module pattern. Since you are defining function statements and exposing them through an object literal, <code>this</code> may not always refer to what you'd expect. Specifically, <code>this</code> will refer to the returned object literal, allowing you to chain methods within that publically exposed API.</p>
+
+        <p>I've written a decent amount of JavaScript using the revealing module pattern, so this wasn't exactly news to me.  I wasn't shocked that you can write methods that chain using that pattern.  Instead, the most thought provoking aspect of the article was the almost-footnote at the end: this doesn't work for private methods.  Because <code>this</code> refers to the object literal, you cannot use it to chain any private or protected methods that you may have defined within the same constructor closure.</p>
+
+        <p>Can we fix that?  Maybe.</p>
+
+        <h3>A New SimpleCache Module</h3>
+
+        <p>To do this, we first need a new SimpleCache module with a private method.  I added one public method, <code>init</code>, which can be called to insert dummy values. For the sake of this example, <code>init</code> in turn calls two private methods using chaining: <code>initSome</code> and <code>initMore</code>.  Here's the code:</p>
+
+        <div data-height="2700" data-theme-id="1062" data-slug-hash="oXXxWz" data-default-tab="js" data-user="wakamoleguy" class='codepen'><pre><code>// Create an instance of our cache and set some keys. Notice that the [new] operator
+// is optional since the SimpleCache (and revealing module pattern) doesn&#x27;t use
+// prototypical inheritance. And, we can use method-chaining to set the cache keys.
+var cache = SimpleCache().init();
+
+output = document.getElementById(&#x27;output&#x27;)
+output.innerHTML = cache.get( &quot;a&quot; ) || false;
+
+
+// ---------------------------------------------------------- //
+// ---------------------------------------------------------- //
+
+
+// I provide a super simple cache container.
+function SimpleCache() {
+
+    // Create an object without a prototype so that we don&#x27;t run into any cache-key
+    // conflicts with native Object.prototype properties.
+    var cache = Object.create( null );
+
+    var priv = {
+        get: get,
+        has: has,
+        remove: remove,
+        set: set,
+        init: init,
+        initSome: initSome,
+        initMore: initMore
+    };
+
+    var publ = {
+        get: get.bind(priv),
+        has: has.bind(priv),
+        remove: remove.bind(priv),
+        set: set.bind(priv),
+        init: init.bind(priv)
+    };
+
+    // Reveal the public API.
+    return(publ);
+
+
+    // ---
+    // PUBLIC METHODS.
+    // ---
+
+
+    // I get the value cached at the given key; or, undefined.
+    function get( key ) {
+
+        return( cache[ key ] );
+
+    }
+
+
+    // I check to see if the given key has a cached value.
+    function has( key ) {
+
+        return( key in cache );
+
+    }
+
+
+    // I remove the given key (and associated value) from the cache.
+    // --
+    // NOTE: Returns [this] for method chaining.
+    function remove( key ) {
+
+        delete( cache[ key ] );
+
+        return( publ );
+
+    }
+
+
+    // I cache the given value at the given key.
+    // --
+    // NOTE: Returns [this] for method chaining.
+    function set( key, value ) {
+
+        cache[ key ] = value;
+
+        return( publ );
+
+    }
+
+    // I initialize the cache with some dummy values
+    // --
+    // NOTE: Returns [this] for method chaining.
+    function init() {
+        this
+          .initSome()
+          .initMore();
+        return ( publ );
+    }
+
+    // ---
+    // PRIVATE METHODS
+    // ---
+
+    // I initialize the cache with some dummy values
+    // --
+    // NOTE: Returns [this] for method chaining.
+    // NOTE: Private
+    function initSome() {
+        this
+          .set(&#x27;a&#x27;, &#x27;Alice&#x27;)
+          .set(&#x27;b&#x27;, &#x27;Bob&#x27;)
+          .set(&#x27;c&#x27;, &#x27;Carol&#x27;);
+        return ( this );
+    }
+
+    // I initialize the cache with some more dummy values
+    // --
+    // NOTE: Returns [this] for method chaining.
+    // NOTE: Private
+    function initMore() {
+        return this
+          .set(&#x27;x&#x27;, &#x27;foo&#x27;)
+          .set(&#x27;y&#x27;, &#x27;bar&#x27;)
+          .set(&#x27;z&#x27;, &#x27;baz&#x27;);
+        return ( this );
+    }
+
+}</CODE></pre>
+          <p>See the Pen <a href='http://codepen.io/wakamoleguy/pen/oXXxWz/'>oXXxWz</a> by Will Mitchell (<a href='http://codepen.io/wakamoleguy'>@wakamoleguy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        </div>
+
+        <h3>A Separate Object, with Bound Public Methods</h3>
+
+        <p>Notice that all of our methods, both public and private, are defined in the same way as before. Additionally, we create explicit <code>publ</code> and <code>priv</code> objects. When we expose our methods on the public object, we bind them to the <code>priv</code> object.  This ensures that internal functions can call each other with chaining, as they will all be bound to the same object.</p>
+
+        <p>Lastly, in our public chained methods, we return <code>publ</code> instead of <code>this</code>. That way, public users of our SimpleCache are never given a reference to the private object, and instead are always passed the publicly exposed API. Note that public methods can still chain to other public methods.</p>
+
+        <h3>Is This Actually Useful?</h3>
+
+        <p>In his original post, Ben questioned the usefulness of chaining private methods. The example above is admittedly contrived just for this purpose. I don't know that I've seen any real case for this in the wild, and the dual-object approach is awfully complex for what it accomplishes. Not to mention the issues this could cause with prototypal inheritance and method lifting.  When you bind the public methods, the consumer of the module loses the ability to redirect <code>this</code> to something else. Is throwing a wrench at your module's users worth it for slightly easier to use private methods?</p>
+
+        <p>Defining extra objects and binding functions also increases the memory footprint of your module. Each time you create one of these new SimpleCaches, you are eating up just a little more of your user's browser resources.</p>
+
+        <p>So, in the end, while this was an interesting thought experiment, I really cannot see anybody doing this in an actual project.  What do you think?  Agree or disagree?  Have a better way of doing it? Let me know on Twitter.</p>
+
+        <p class="signoff">Cheers!</p>
+
+        <p class="tweetthis">
+          <a href="https://twitter.com/share?url=http://www.wakamoleguy.com/2014/revealing-module-pattern-and-this/&text=Revealing Module Pattern and `this`&via=wakamoleguy" target="_blank">Share on Twitter</a>
+        </p>
+
+      </article>
+      <aside>
+        <h2>On a side note...</h2>
+        <p>Hi.  My name is Will&nbsp;Mitchell.</p>
+
+        <p>I'm a developer, gamer, and overall nerd.  Sometimes I write about things.</p>
+
+        <p>I work at a great company called <a href="http://www.onsip.com">OnSIP</a> as <strong>Lead Developer</strong>.</p>
+
+        <p>Cheers! -Will</p>
+      </aside>
+    </main>
+
+    <footer>
+      <h2>Find /wakamoleguy</h2>
+      <a href="//github.com/wakamoleguy">GitHub</a>
+      <a href="//twitter.com/wakamoleguy">Twitter</a>
+    </footer>
+    <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+  </body>
+</html>
