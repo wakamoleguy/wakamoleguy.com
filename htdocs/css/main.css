@@ -129,6 +129,16 @@ pre {
     background: white;
 }
 
+.note {
+    font-size: 0.8em;
+    line-height: 1.4em;
+    opacity: 0.9;
+}
+
+.note::before {
+    content: '* '
+}
+
 /**
  *
  * Structure
