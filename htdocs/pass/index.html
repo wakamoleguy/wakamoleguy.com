@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Password Syncronizer</title>
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+    <h1>Password Synchronizer</h1>
+
+    <section id="sync" class="offline">
+      <div id="sync-offline">
+        <h2 class="sync-status">Sync Channel Not Connected</h2>
+        <button type="button" id="sync-setup">Set Up</button>
+      </div>
+      <div id="sync-pin">
+        <h2 class="sync-status">Choose a Connection PIN</h2>
+        <label>PIN: <input type="number" name="pin"/></label>
+        <button type="button" id="sync-connect">Connect</button>
+      </div>
+      <div id="sync-match">
+        <h2 class="sync-status">Please <strong>manually verify</strong> these values:</h2>
+        <p class="note">The two fingerprints should look the same here as they do on the other device.</p>
+        <h3>1st Fingerprint</h3>
+        <p id="sync-match-a">Error - Do Not Approve</p>
+        <h3>2nd Fingerprint</h3>
+        <p id="sync-match-b">Error - Do Not Approve</p>
+        <button type="button" id="sync-approve">Approve</button>
+        <button type="button" id="sync-deny">Deny</button>
+      </div>
+      <div id="sync-online">
+        <h2 class="sync-status">Sync Channel Online</h2>
+        <button type="button" id="sync-disconnect">Disconnect</button>
+        <button type="button" id="sync-cert">Sync Certificate</button>
+      </div>
+    </section>
+
+    <ul id="pass-list">
+      <li>
+        <form id="pass-add">
+          <input type="text" name="name" placeholder="New Password (Site)"/>
+          <input type="password" name="password" placeholder="Password" />
+          <button>Add</button>
+        </form>
+      </li>
+    </ul>
+
+    <!-- Templates -->
+    <section id="templates">
+      <li id="passlist-item-template">
+        <article class="pass">
+          <h2 class="name"></h2>
+          <button type="button" class="delete">Delete</button>
+          <button type="button" class="copy" disabled="disabled">Copy</button>
+          <button type="button" class="sync">Sync</button>
+          <button type="button" class="view">View</button>
+          <span class="secret"></span>
+        </article>
+      </li>
+    </section>
+
+    <!-- JavaScript -->
+    <script>window.app = {};</script>
+    <script src="openpgp/openpgp.js"></script>
+    <script src="sip-0.7.3.min.js"></script>
+    <script src="js/view-password-console.js"></script>
+    <script src="js/view-password-list.js"></script>
+    <script src="js/view-sync.js"></script>
+    <script src="js/model-crypt.js"></script>
+    <script src="js/model-sync.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
