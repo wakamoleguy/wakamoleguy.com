@@ -28,6 +28,7 @@
     this.syncView = views.sync;
 
     // Wire stuff together now, please.
+    this.cryptModel.doaddok = this.passwordView.addok.bind(this.passwordView);
     this.passwordView.dobrowse = this.cryptModel.browse.bind(this.cryptModel);
     this.passwordView.doread = this.cryptModel.read.bind(this.cryptModel);
     this.passwordView.doedit = this.cryptModel.edit.bind(this.cryptModel);
@@ -50,6 +51,14 @@
     };
     this.syncModel.oncert = (cert) => {
       this.cryptModel.putCert(cert);
+      this.cryptModel.browse().then(values => {
+        if (!values) return;
+        return Promise.all(values.map(url => {
+          return this.cryptModel.del(url.match(/.*\/([^/]*)\/$/)[1]);
+        }));
+      }).then(_ => {
+        this.passwordView.browse();
+      });
     };
 
     this.syncModel.onpass = (pass) => {

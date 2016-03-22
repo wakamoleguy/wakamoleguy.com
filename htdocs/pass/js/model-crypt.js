@@ -30,6 +30,7 @@
   }
 
   function CryptModel() {
+    this.doaddok = () => {};
     this.initialized = new Promise((resolve, reject) => {
       console.log('Initializing...');
       openpgp.initWorker({ path: 'openpgp/openpgp.worker.js' });
@@ -38,6 +39,11 @@
         scope: '/pass/'
       }).
         then(_ => (console.log('Service Worker initialized.'))).
+        then(_ => {
+          return new Promise((res, rej) => {
+            setTimeout(res, 100);
+          });
+        }).
         then(_ => {
 
           console.log('Initializing OpenPGP');
@@ -54,26 +60,23 @@
             console.log("Generating keypair...(" + options.numBits + ")");
 
             if (options.passphrase === null) {
-              options.passphrase = prompt('Enter New Passphrase:', 'super secret');
+              options.passphrase = prompt('Enter New Passphrase:\n\n' +
+                'Press cancel if you will be syncing from another device', '');
             }
 
-            return openpgp.generateKey(options).then(key => {
-
-              this.putCert(key);
-              return key;
-            });
+            if (options.passphrase === null) {
+              return true;
+            } else {
+              return openpgp.generateKey(options).then(key => (this.putCert(key)));
+            }
           } else {
 
             console.log('Got keypair from cache.');
-            return key;
+            pubkey = openpgp.key.readArmored(key.publicKeyArmored);
+            privkey = openpgp.key.readArmored(key.privateKeyArmored);
+            this.doaddok();
+            return true;
           }
-        }).
-        then(key => {
-
-          console.log("Keypair loaded.");
-          pubkey = openpgp.key.readArmored(key.publicKeyArmored);
-          privkey = openpgp.key.readArmored(key.privateKeyArmored);
-          return true;
         }).
         then(_ => {
 
@@ -92,7 +95,7 @@
         then(_ => {
           var key = privkey.keys[0];
           if (options.passphrase === null) {
-            options.passphrase = prompt('Enter Passphrase', 'super secret');
+            options.passphrase = prompt('Enter Passphrase:', '');
           }
           key.decrypt(options.passphrase);
           return openpgp.decrypt({
@@ -202,7 +205,14 @@
           publicKeyArmored: key.publicKeyArmored,
           privateKeyArmored: key.privateKeyArmored
         })
-      }).then(response => (response.status === 200));
+      }).then(response => {
+        if (response.status === 200) {
+          pubkey = openpgp.key.readArmored(key.publicKeyArmored);
+          privkey = openpgp.key.readArmored(key.privateKeyArmored);
+          this.doaddok();
+        }
+        return response.status === 200;
+      });
     },
 
     getCert() {

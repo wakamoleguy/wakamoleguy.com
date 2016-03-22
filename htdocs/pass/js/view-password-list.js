@@ -79,6 +79,7 @@
 
     onbrowse(values) {
       clearList();
+      if (!values) { values = []; }
       values.forEach(url => {
         let name = url.match(/.*\/([^/]*)\/$/)[1];
 
@@ -203,6 +204,10 @@
         console.log('---End Ciphertext---');
         console.log('Done.');
       }
+    },
+
+    addok() {
+      el.passlist.children[0].classList.add('active');
     }
   };
 

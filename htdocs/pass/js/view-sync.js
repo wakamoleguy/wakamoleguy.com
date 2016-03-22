@@ -35,7 +35,9 @@
     el.disconnectButton.addEventListener('click', this.disconnect.bind(this), false);
 
     el.certButton.addEventListener('click', _ => {
-      if (window.confirm('You are about to send your private key to the remote crypt. Are you sure?')) {
+      if (window.confirm('You are about to send your private key to the remote crypt.\n' +
+      'This will clear any previously stored passwords in the remote crypt.\n' +
+      'Are you sure?')) {
         this.dosynccert();
       }
     }, false);

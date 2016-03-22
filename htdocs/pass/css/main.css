@@ -186,6 +186,19 @@ li {
   list-style: none;
 }
 
+#pass-list li:first-child {
+  display: none;
+}
+
+#pass-list li.active:first-child {
+  display: block;
+}
+
+.secret {
+  font-size: 1.5em;
+  padding-left: 1em;
+}
+
 /** Sync **/
 #sync-offline,
 #sync-pin,
